@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Locker Codes Tracker</title>
+  <meta name="description" content="Track WWE 2K25 and other game locker/redeem codes. Filter by game, status, and search." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { color-scheme: dark light; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .badge { }
+    .chip { }
+    .card { }
+    .btn { }
+    .btn-primary { }
+    .tbl th { }
+    .tbl td { }
+    .kbd { }
+  </style>
+  <script>
+    // Minimal Tailwind layer via CDN - classes are applied inline
+  </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+  <header class="sticky top-0 z-10 backdrop-blur bg-white/70 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="size-8 grid place-items-center rounded-xl bg-blue-600 text-white font-bold">LC</div>
+        <div>
+          <h1 class="text-lg font-semibold leading-tight">Locker Codes Tracker</h1>
+          <p class="text-xs text-slate-500">Static, Github Pages friendly.</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-500">
+        <span>Quick actions:</span>
+        <button id="copyShare" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Copy share URL</button>
+        <a class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" href="#howto">How to publish</a>
+        <button id="exportJson" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Export JSON</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-4 mb-6">
+      <div class="flex flex-col md:flex-row md:items-end gap-3">
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1" for="q">Search</label>
+          <input id="q" type="search" placeholder="Search code, reward, notes…" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="game">Game</label>
+          <select id="game" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 min-w-48">
+            <option value="">All games</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1" for="status">Status</label>
+          <select id="status" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 min-w-40">
+            <option value="">Any</option>
+            <option value="active">Active</option>
+            <option value="limited">Limited</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+        <div class="grow"></div>
+        <div class="flex items-center gap-2">
+          <button id="openAdd" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-blue-600 text-white border-blue-600 hover:bg-blue-700">Add Code</button>
+          <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">
+            <input id="importFile" type="file" accept="application/json" class="hidden" />
+            Import JSON
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-slate-100/70 dark:bg-slate-900/50">
+            <tr>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Game</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Code</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Reward</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Status</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Added</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Expires</th>
+              <th class="p-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Notes</th>
+              <th class="p-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p id="empty" class="text-center text-slate-500 mt-6 hidden">No codes match your filters.</p>
+
+    <section id="howto" class="mt-10 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+      <h2 class="text-base font-semibold">How to use on GitHub Pages</h2>
+      <ol class="list-decimal ml-5 space-y-1">
+        <li>Create a new public repo named <span class="px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">locker-codes</span> (or any name).</li>
+        <li>Upload this <span class="px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">index.html</span> to the root of the repo.</li>
+        <li>In repo settings → Pages → set source to <span class="px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">Deploy from a branch</span> → <span class="px-2 py-0.5 text-[11px] rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">main /root</span>.</li>
+        <li>Your site will be live at <span class="text-[11px] px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800">https://&lt;your-username&gt;.github.io/&lt;reponame&gt;/</span>.</li>
+        <li>Edit codes directly in GitHub by clicking the pencil icon on this file and committing changes, or use Export/Import JSON to manage offline.</li>
+      </ol>
+      <p class="text-xs text-slate-500">Note: This is a static site—edits happen via Git commits. For auto-updates from the web, add a GitHub Action later to fetch sources and commit changes.</p>
+    </section>
+  </main>
+
+  <dialog id="modal" class="backdrop:bg-black/50 rounded-2xl p-0 w-[min(720px,92vw)]">
+    <form method="dialog" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl p-4">
+      <div class="flex items-start justify-between gap-3">
+        <h3 id="modalTitle" class="text-lg font-semibold">Add Code</h3>
+        <button value="cancel" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" aria-label="Close">✕</button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-3 mt-3">
+        <label class="flex flex-col gap-1"><span class="text-sm font-medium">Game</span>
+          <input id="fGame" required class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" placeholder="WWE 2K25" />
+        </label>
+        <label class="flex flex-col gap-1"><span class="text-sm font-medium">Code</span>
+          <input id="fCode" required class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" placeholder="JOINTHEFUN25" />
+        </label>
+        <label class="md:col-span-2 flex flex-col gap-1"><span class="text-sm font-medium">Reward</span>
+          <input id="fReward" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" placeholder="Persona cards + pack" />
+        </label>
+        <label class="flex flex-col gap-1"><span class="text-sm font-medium">Status</span>
+          <select id="fStatus" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950">
+            <option value="active">Active</option>
+            <option value="limited">Limited</option>
+            <option value="expired">Expired</option>
+          </select>
+        </label>
+        <label class="flex flex-col gap-1"><span class="text-sm font-medium">Expires (optional)</span>
+          <input id="fExpires" type="date" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" />
+        </label>
+        <label class="md:col-span-2 flex flex-col gap-1"><span class="text-sm font-medium">Notes</span>
+          <input id="fNotes" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950" placeholder="Source, event, etc." />
+        </label>
+      </div>
+      <div class="flex items-center justify-end gap-2 mt-4">
+        <button value="cancel" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800">Cancel</button>
+        <button id="saveBtn" value="default" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-blue-600 text-white border-blue-600 hover:bg-blue-700">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="application/json" id="codes-data">
+  {
+    "updated": "2025-08-12",
+    "items": [
+      {"game":"WWE 2K25","code":"JOINTHEFUN25","reward":"Emerald The Rock, Masked Dirty Dominik, Man Bun Roman + 1x Basic Superstar Super Pack S2","status":"limited","added":"2025-08-12","expires":"","notes":"Manually added"},
+      {"game":"WWE 2K25","code":"CHACHING12500","reward":"12,500 VC","status":"active","added":"2025-08-12","expires":"","notes":"Marked as non-expiring on several trackers"}
+    ]
+  }
+  </script>
+
+  <script>
+    let data = { updated: new Date().toISOString().slice(0,10), items: [] };
+    let editingIndex = null;
+
+    const qEl = document.getElementById('q');
+    const gameEl = document.getElementById('game');
+    const statusEl = document.getElementById('status');
+    const rowsEl = document.getElementById('rows');
+    const emptyEl = document.getElementById('empty');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+
+    const fGame = document.getElementById('fGame');
+    const fCode = document.getElementById('fCode');
+    const fReward = document.getElementById('fReward');
+    const fStatus = document.getElementById('fStatus');
+    const fExpires = document.getElementById('fExpires');
+    const fNotes = document.getElementById('fNotes');
+
+    function load() {
+      try {
+        const raw = document.getElementById('codes-data').textContent;
+        const json = JSON.parse(raw);
+        data = json;
+      } catch (e) {
+        console.error('Failed to parse inline JSON', e);
+      }
+      refreshFilters();
+      render();
+    }
+
+    function refreshFilters() {
+      const games = Array.from(new Set(data.items.map(i => i.game))).sort();
+      const curr = gameEl.value;
+      gameEl.innerHTML = '<option value="">All games</option>' + games.map(g => `<option>${escapeHtml(g)}</option>`).join('');
+      if (games.includes(curr)) gameEl.value = curr;
+    }
+
+    function match(item) {
+      const q = qEl.value.trim().toLowerCase();
+      const g = gameEl.value;
+      const s = statusEl.value;
+      if (g && item.game !== g) return false;
+      if (s && item.status !== s) return false;
+      if (!q) return true;
+      const hay = `${item.game} ${item.code} ${item.reward||''} ${item.notes||''}`.toLowerCase();
+      return hay.includes(q);
+    }
+
+    function render() {
+      const items = data.items.filter(match).sort((a,b)=>{
+        const order = { active: 0, limited: 1, expired: 2 };
+        const ao = order[a.status] ?? 3;
+        const bo = order[b.status] ?? 3;
+        if (ao !== bo) return ao - bo;
+        return (b.added||'').localeCompare(a.added||'');
+      });
+      rowsEl.innerHTML = items.map((item, idx) => rowHtml(item, idx)).join('');
+      emptyEl.classList.toggle('hidden', items.length !== 0);
+    }
+
+    function rowHtml(item, idx) {
+      const pill = item.status === 'active' ? 'bg-green-100/60 text-green-800 border border-green-300 dark:bg-green-900/40 dark:text-green-200 dark:border-green-700'
+                 : item.status === 'limited' ? 'bg-amber-100/60 text-amber-800 border border-amber-300 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700'
+                 : 'bg-slate-200/60 text-slate-700 border border-slate-300 line-through opacity-70 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-700';
+      return `
+        <tr class="border-t border-slate-200 dark:border-slate-800">
+          <td class="p-3 whitespace-nowrap">${escapeHtml(item.game)}</td>
+          <td class="p-3 font-mono">${escapeHtml(item.code)}</td>
+          <td class="p-3">${escapeHtml(item.reward || '')}</td>
+          <td class="p-3"><span class="${pill} text-xs px-2 py-1 rounded-full">${escapeHtml(cap(item.status))}</span></td>
+          <td class="p-3 whitespace-nowrap text-slate-500">${escapeHtml(item.added || '')}</td>
+          <td class="p-3 whitespace-nowrap text-slate-500">${escapeHtml(item.expires || '')}</td>
+          <td class="p-3 text-slate-500">${escapeHtml(item.notes || '')}</td>
+          <td class="p-3 text-right whitespace-nowrap">
+            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" data-action="edit" data-code="${encodeURIComponent(item.code)}">Edit</button>
+            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" data-action="dup" data-code="${encodeURIComponent(item.code)}">Duplicate</button>
+            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" data-action="expire" data-code="${encodeURIComponent(item.code)}">Mark expired</button>
+            <button class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800" data-action="delete" data-code="${encodeURIComponent(item.code)}">Delete</button>
+          </td>
+        </tr>`;
+    }
+
+    function cap(s){ return (s||'').charAt(0).toUpperCase() + (s||'').slice(1); }
+    function escapeHtml(s){ return (s??'').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])); }
+
+    document.getElementById('openAdd').addEventListener('click', () => openModal());
+    document.getElementById('exportJson').addEventListener('click', exportJson);
+    document.getElementById('copyShare').addEventListener('click', () => navigator.clipboard.writeText(location.href));
+
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const json = JSON.parse(reader.result);
+          if (!Array.isArray(json.items)) throw new Error('Invalid format');
+          data = json;
+          refreshFilters();
+          render();
+        } catch (err) {
+          alert('Invalid JSON file. Expected { items: [...] }');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    rowsEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const code = decodeURIComponent(btn.dataset.code);
+      const idx = data.items.findIndex(i => i.code === code);
+      if (idx === -1) return;
+      const item = data.items[idx];
+      const action = btn.dataset.action;
+      if (action === 'edit') openModal(item, idx);
+      else if (action === 'dup') { const copy = {...item, code: item.code + '-COPY'}; data.items.splice(idx+1,0,copy); render(); }
+      else if (action === 'expire') { data.items[idx].status = 'expired'; render(); }
+      else if (action === 'delete') { if (confirm(`Delete ${item.code}?`)) { data.items.splice(idx,1); render(); } }
+    });
+
+    function openModal(item=null, idx=null){
+      editingIndex = idx;
+      modalTitle.textContent = idx==null ? 'Add Code' : 'Edit Code';
+      fGame.value   = item?.game   || '';
+      fCode.value   = item?.code   || '';
+      fReward.value = item?.reward || '';
+      fStatus.value = item?.status || 'active';
+      fExpires.value= item?.expires|| '';
+      fNotes.value  = item?.notes  || '';
+      modal.showModal();
+    }
+
+    document.getElementById('saveBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      const item = {
+        game: fGame.value.trim(),
+        code: fCode.value.trim(),
+        reward: fReward.value.trim(),
+        status: fStatus.value,
+        added: (editingIndex==null ? new Date().toISOString().slice(0,10) : (data.items[editingIndex].added || new Date().toISOString().slice(0,10))),
+        expires: fExpires.value,
+        notes: fNotes.value.trim()
+      };
+      if (!item.game || !item.code) {
+        alert('Game and Code are required');
+        return;
+      }
+      if (editingIndex==null) data.items.unshift(item); else data.items[editingIndex] = item;
+      refreshFilters();
+      render();
+      modal.close();
+    });
+
+    function exportJson(){
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'locker-codes.json'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); qEl.focus(); }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') { e.preventDefault(); openModal(); }
+    });
+
+    load();
+  </script>
+</body>
+</html>
